@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pedidos</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0F4FF;
+    --surface: #FFFFFF;
+    --primary: #2563EB;
+    --primary-dark: #1D4ED8;
+    --primary-light: #EFF6FF;
+    --accent: #F59E0B;
+    --accent-light: #FFFBEB;
+    --success: #16A34A;
+    --success-light: #F0FDF4;
+    --danger: #DC2626;
+    --danger-light: #FEF2F2;
+    --text: #1E293B;
+    --text-muted: #64748B;
+    --border: #CBD5E1;
+    --shadow: 0 4px 20px rgba(37,99,235,0.10);
+    --shadow-lg: 0 8px 32px rgba(37,99,235,0.15);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background: var(--primary);
+    color: white;
+    padding: 18px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(37,99,235,0.3);
+  }
+  .header-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+  .header-subtitle { font-size: 12px; opacity: 0.8; font-weight: 600; }
+  .btn-logout {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+  }
+
+  /* ===== PAGES ===== */
+  .page { display: none; padding: 20px; padding-bottom: 80px; }
+  .page.active { display: block; }
+
+  /* ===== LOGIN ===== */
+  #page-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    background: var(--primary);
+  }
+  .login-logo {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .login-title {
+    color: white;
+    font-size: 32px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .login-sub {
+    color: rgba(255,255,255,0.75);
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 48px;
+    font-weight: 600;
+  }
+  .btn-google {
+    background: white;
+    border: none;
+    padding: 18px 32px;
+    border-radius: var(--radius);
+    font-size: 17px;
+    font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 320px;
+    justify-content: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-google:active { transform: scale(0.97); }
+  .btn-google svg { width: 26px; height: 26px; flex-shrink: 0; }
+  .login-footer {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 40px;
+    font-weight: 600;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  /* ===== FORM CONTROLS ===== */
+  label {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  select, input[type="text"], input[type="number"], textarea {
+    width: 100%;
+    padding: 15px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 17px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface);
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  select:focus, input:focus, textarea:focus {
+    border-color: var(--primary);
+  }
+  textarea { resize: none; line-height: 1.5; }
+  .form-group { margin-bottom: 18px; }
+
+  /* ===== PRECIO TOGGLE ===== */
+  .precio-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 14px 10px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: white;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    line-height: 1.3;
+  }
+  .toggle-btn.active {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .toggle-btn .toggle-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+  /* ===== ARTÍCULOS ===== */
+  .articulo-item {
+    background: var(--primary-light);
+    border: 2px solid #BFDBFE;
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .articulo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .articulo-num {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .btn-remove {
+    background: var(--danger-light);
+    border: none;
+    color: var(--danger);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+  }
+  .articulo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .articulo-grid .form-group { margin-bottom: 0; }
+  .articulo-grid .form-group.full { grid-column: 1 / -1; }
+  .articulo-grid label { font-size: 13px; margin-bottom: 6px; }
+  .articulo-grid select,
+  .articulo-grid input {
+    font-size: 15px;
+    padding: 12px 13px;
+  }
+
+  /* ===== PRECIO DISPLAY ===== */
+  .precio-display {
+    background: var(--accent-light);
+    border: 2px solid #FDE68A;
+    border-radius: var(--radius-sm);
+    padding: 10px 13px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #92400E;
+    text-align: center;
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 18px;
+    font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.35);
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary {
+    background: var(--primary-light);
+    color: var(--primary);
+    border: 2px solid #BFDBFE;
+  }
+  .btn-success {
+    background: var(--success);
+    color: white;
+    box-shadow: 0 4px 16px rgba(22,163,74,0.35);
+  }
+  .btn-danger {
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 2px solid #FCA5A5;
+  }
+  .btn-sm {
+    padding: 12px 16px;
+    font-size: 15px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ===== TOTALES ===== */
+  .total-card {
+    background: var(--text);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .total-label { font-size: 13px; opacity: 0.7; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .total-amount { font-size: 34px; font-weight: 900; letter-spacing: -1px; margin-top: 4px; }
+  .total-items { font-size: 13px; opacity: 0.6; font-weight: 600; margin-top: 4px; }
+
+  /* ===== SUCCESS SCREEN ===== */
+  #page-success {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  #page-success.active { display: flex; }
+  .success-icon {
+    width: 100px;
+    height: 100px;
+    background: var(--success-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    margin-bottom: 24px;
+    animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes pop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .success-title { font-size: 28px; font-weight: 900; color: var(--success); margin-bottom: 10px; }
+  .success-sub { font-size: 16px; color: var(--text-muted); font-weight: 600; margin-bottom: 40px; line-height: 1.5; }
+
+  /* ===== LOADING ===== */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.85);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .overlay.active { display: flex; }
+  .spinner {
+    width: 52px;
+    height: 52px;
+    border: 5px solid #BFDBFE;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .overlay-text { font-size: 16px; font-weight: 700; color: var(--primary); }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 700;
+    z-index: 9999;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    max-width: 90vw;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--danger); }
+  .toast.success { background: var(--success); }
+
+  /* ===== DIVIDER ===== */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  /* ===== RESUMEN PEDIDO ===== */
+  .resumen-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .resumen-row:last-child { border-bottom: none; }
+  .resumen-art { font-weight: 700; flex: 1; }
+  .resumen-det { color: var(--text-muted); font-size: 13px; font-weight: 600; }
+  .resumen-precio { font-weight: 800; color: var(--primary); white-space: nowrap; margin-left: 12px; }
+
+  /* ===== NAV ===== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    background: white;
+    border-top: 2px solid var(--border);
+    display: flex;
+    z-index: 100;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 14px 10px 10px;
+    border: none;
+    background: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+  }
+  .nav-btn .nav-icon { font-size: 22px; }
+  .nav-btn.active { color: var(--primary); }
+
+  /* ===== HISTORIAL ===== */
+  .pedido-hist {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border: 2px solid var(--border);
+  }
+  .pedido-hist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .pedido-hist-cliente { font-size: 16px; font-weight: 800; }
+  .pedido-hist-fecha { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  .pedido-hist-total { font-size: 18px; font-weight: 900; color: var(--success); }
+  .pedido-hist-items { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .badge-pending { background: #FEF3C7; color: #92400E; }
+  .badge-ok { background: var(--success-light); color: var(--success); }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-icon { font-size: 56px; margin-bottom: 16px; }
+  .empty-state p { font-size: 16px; font-weight: 600; }
+
+  /* Select arrow */
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-muted);
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+
+<!-- OVERLAY LOADING -->
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <div class="overlay-text" id="overlay-text">Cargando...</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== LOGIN ===== -->
+<div id="page-login" class="active">
+  <div class="login-logo">📦</div>
+  <div class="login-title">Pedidos</div>
+  <div class="login-sub">Sistema de ingreso de pedidos</div>
+  <button class="btn-google" id="btn-google-login">
+    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+    Ingresar con Google
+  </button>
+  <div class="login-footer">Acceso solo para vendedores autorizados</div>
+</div>
+
+<!-- ===== APP (con header y nav) ===== -->
+<div id="app" style="display:none;">
+
+  <div class="header" id="main-header">
+    <div>
+      <div class="header-title">📦 Pedidos</div>
+      <div class="header-subtitle" id="header-vendedor">Cargando...</div>
+    </div>
+    <button class="btn-logout" id="btn-logout">Salir</button>
+  </div>
+
+  <!-- PÁGINA: NUEVO PEDIDO -->
+  <div class="page active" id="page-nuevo">
+
+    <!-- Cliente -->
+    <div class="card">
+      <div class="card-title">👤 Cliente</div>
+      <div class="form-group">
+        <label for="sel-cliente">Seleccionar cliente</label>
+        <div class="select-wrap">
+          <select id="sel-cliente">
+            <option value="">— Elegir cliente —</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Artículos -->
+    <div class="card">
+      <div class="card-title">🛒 Artículos del pedido</div>
+      <div id="articulos-container"></div>
+      <button class="btn btn-secondary btn-sm" id="btn-add-articulo">
+        ＋ Agregar artículo
+      </button>
+    </div>
+
+    <!-- Observaciones -->
+    <div class="card">
+      <div class="card-title">📝 Observaciones</div>
+      <div class="form-group" style="margin-bottom:0">
+        <textarea id="obs" rows="3" placeholder="Comentarios, instrucciones especiales..."></textarea>
+      </div>
+    </div>
+
+    <!-- Total -->
+    <div class="total-card" id="total-card" style="display:none">
+      <div class="total-label">Total del pedido</div>
+      <div class="total-amount" id="total-amount">$0</div>
+      <div class="total-items" id="total-items">0 artículos</div>
+    </div>
+
+    <!-- Confirmar -->
+    <button class="btn btn-success" id="btn-confirmar">
+      ✓ Confirmar pedido
+    </button>
+
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- PÁGINA: HISTORIAL -->
+  <div class="page" id="page-historial">
+    <div class="card">
+      <div class="card-title">📋 Mis pedidos recientes</div>
+      <div id="historial-container">
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <p>Todavía no enviaste pedidos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nav-nuevo" onclick="showPage('nuevo')">
+      <span class="nav-icon">＋</span>
+      Nuevo Pedido
+    </button>
+    <button class="nav-btn" id="nav-historial" onclick="showPage('historial')">
+      <span class="nav-icon">📋</span>
+      Mis Pedidos
+    </button>
+  </div>
+
+</div>
+
+<!-- ÉXITO -->
+<div id="page-success">
+  <div class="success-icon">✅</div>
+  <div class="success-title">¡Pedido enviado!</div>
+  <div class="success-sub" id="success-detail">Tu pedido fue registrado<br>y está pendiente de autorización.</div>
+  <button class="btn btn-primary" onclick="nuevoOtroPedido()">＋ Ingresar otro pedido</button>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURACIÓN — ¡CAMBIAR ESTA URL por la del Apps Script!
+// ============================================================
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywJ4s-l6v30jIv-4zvY39qeWMIs4rf_3ygb17yCe8Ad7TeKpzIZEEL7A3u6wxhzIBJig/exec';
+
+// ============================================================
+// ESTADO GLOBAL
+// ============================================================
+let currentUser = null;
+let vendedorData = null;
+let clientes = [];
+let articulos = [];
+let listas = [];
+let articuloCount = 0;
+let historial = [];
+
+// ============================================================
+// GOOGLE SIGN-IN
+// ============================================================
+function initGoogleAuth() {
+  // Cargamos gapi
+  const script = document.createElement('script');
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.onload = () => {
+    google.accounts.id.initialize({
+      client_id: '726758201225-t8g1n5ti9o8vaps3h20dm5grv4ufrq6i.apps.googleusercontent.com',
+      callback: handleCredentialResponse,
+      auto_select: false
+    });
+  };
+  document.head.appendChild(script);
+}
+
+function handleCredentialResponse(response) {
+  const payload = parseJwt(response.credential);
+  currentUser = {
+    email: payload.email,
+    name: payload.name,
+    picture: payload.picture,
+    token: response.credential
+  };
+  loadVendedorData();
+}
+
+function parseJwt(token) {
+  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
+    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+}
+
+document.getElementById('btn-google-login').onclick = () => {
+  google.accounts.id.prompt();
+};
+
+// ============================================================
+// CARGA DE DATOS
+// ============================================================
+async function loadVendedorData() {
+  showOverlay('Verificando acceso...');
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getVendedorData&email=${currentUser.email}`);
+    const data = await res.json();
+    if (data.error) { hideOverlay(); showToast(data.error, 'error'); return; }
+    vendedorData = data.vendedor;
+    clientes = data.clientes;
+    articulos = data.articulos;
+    listas = data.listas;
+    mostrarApp();
+  } catch(e) {
+    hideOverlay();
+    showToast('Error de conexión. Reintentá.', 'error');
+    console.error(e);
+  }
+}
+
+function mostrarApp() {
+  document.getElementById('page-login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('header-vendedor').textContent = vendedorData.nombre;
+  poblarClientes();
+  agregarArticulo();
+  hideOverlay();
+}
+
+function poblarClientes() {
+  const sel = document.getElementById('sel-cliente');
+  sel.innerHTML = '<option value="">— Elegir cliente —</option>';
+  clientes.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.nombre;
+    sel.appendChild(opt);
+  });
+}
+
+// ============================================================
+// ARTÍCULOS
+// ============================================================
+function agregarArticulo() {
+  articuloCount++;
+  const container = document.getElementById('articulos-container');
+  const div = document.createElement('div');
+  div.className = 'articulo-item';
+  div.id = `art-${articuloCount}`;
+
+  const listaOpts = listas.map((l, i) =>
+    `<option value="${i}">${l.nombre}</option>`
+  ).join('');
+
+  div.innerHTML = `
+    <div class="articulo-header">
+      <span class="articulo-num">Artículo ${articuloCount}</span>
+      ${articuloCount > 1 ? `<button class="btn-remove" onclick="removeArticulo(${articuloCount})">×</button>` : ''}
+    </div>
+    <div class="articulo-grid">
+      <div class="form-group full">
+        <label>Artículo</label>
+        <div class="select-wrap">
+          <select onchange="onArticuloChange(${articuloCount})" id="art-sel-${articuloCount}">
+            <option value="">— Elegir —</option>
+            ${articulos.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cantidad</label>
+        <input type="number" min="1" value="1" id="art-qty-${articuloCount}" 
+               oninput="recalcular()" placeholder="1">
+      </div>
+      <div class="form-group">
+        <label>Tipo precio</label>
+        <div class="select-wrap">
+          <select id="art-tipo-${articuloCount}" onchange="onTipoPrecioChange(${articuloCount})">
+            ${listaOpts}
+            <option value="manual">Precio manual</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full" id="precio-wrap-${articuloCount}">
+        <label>Precio unitario</label>
+        <div class="precio-display" id="precio-display-${articuloCount}">— Elegir artículo —</div>
+      </div>
+      <div class="form-group full" id="precio-manual-wrap-${articuloCount}" style="display:none">
+        <label>Ingresar precio</label>
+        <input type="number" min="0" step="0.01" id="art-precio-manual-${articuloCount}" 
+               oninput="recalcular()" placeholder="0.00">
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  recalcular();
+}
+
+function removeArticulo(id) {
+  document.getElementById(`art-${id}`).remove();
+  recalcular();
+}
+
+function onArticuloChange(id) {
+  const artId = document.getElementById(`art-sel-${id}`).value;
+  const tipo = document.getElementById(`art-tipo-${id}`).value;
+  if (tipo !== 'manual') {
+    updatePrecioDisplay(id, artId, parseInt(tipo));
+  }
+  recalcular();
+}
+
+function onTipoPrecioChange(id) {
+  const tipo = document.getElementById(`art-tipo-${id}`).value;
+  const artId = document.getElementById(`art-sel-${id}`).value;
+  const manualWrap = document.getElementById(`precio-manual-wrap-${id}`);
+  const displayWrap = document.getElementById(`precio-wrap-${id}`);
+
+  if (tipo === 'manual') {
+    displayWrap.style.display = 'none';
+    manualWrap.style.display = 'block';
+  } else {
+    displayWrap.style.display = 'block';
+    manualWrap.style.display = 'none';
+    if (artId) updatePrecioDisplay(id, artId, parseInt(tipo));
+  }
+  recalcular();
+}
+
+function updatePrecioDisplay(id, artId, listaIdx) {
+  const art = articulos.find(a => a.id == artId);
+  const display = document.getElementById(`precio-display-${id}`);
+  if (!art) { display.textContent = '— Elegir artículo —'; return; }
+  const precio = art.precios?.[listaIdx] ?? 0;
+  display.textContent = precio > 0 ? formatMoney(precio) : 'Sin precio en esta lista';
+}
+
+function getPrecioArticulo(id) {
+  const tipo = document.getElementById(`art-tipo-${id}`)?.value;
+  if (!tipo) return 0;
+  if (tipo === 'manual') {
+    return parseFloat(document.getElementById(`art-precio-manual-${id}`)?.value) || 0;
+  } else {
+    const artId = document.getElementById(`art-sel-${id}`)?.value;
+    const art = articulos.find(a => a.id == artId);
+    return art?.precios?.[parseInt(tipo)] ?? 0;
+  }
+}
+
+function getArticulosDelPedido() {
+  const items = [];
+  document.querySelectorAll('.articulo-item').forEach(el => {
+    const id = el.id.replace('art-','');
+    const artSel = document.getElementById(`art-sel-${id}`);
+    if (!artSel) return;
+    const artId = artSel.value;
+    if (!artId) return;
+    const art = articulos.find(a => a.id == artId);
+    const qty = parseFloat(document.getElementById(`art-qty-${id}`)?.value) || 0;
+    const precio = getPrecioArticulo(id);
+    const tipo = document.getElementById(`art-tipo-${id}`)?.value;
+    const tipoPrecioLabel = tipo === 'manual' ? 'Manual' : (listas[parseInt(tipo)]?.nombre || tipo);
+    if (qty > 0) {
+      items.push({ articuloId: artId, nombre: art?.nombre || '', cantidad: qty, precio, tipoPrecio: tipoPrecioLabel, subtotal: qty * precio });
+    }
+  });
+  return items;
+}
+
+function recalcular() {
+  const items = getArticulosDelPedido();
+  const total = items.reduce((s, i) => s + i.subtotal, 0);
+  const totalCard = document.getElementById('total-card');
+  if (items.length > 0) {
+    totalCard.style.display = 'block';
+    document.getElementById('total-amount').textContent = formatMoney(total);
+    document.getElementById('total-items').textContent = `${items.length} artículo${items.length !== 1 ? 's' : ''}`;
+  } else {
+    totalCard.style.display = 'none';
+  }
+}
+
+// ============================================================
+// ENVIAR PEDIDO
+// ============================================================
+document.getElementById('btn-confirmar').onclick = async () => {
+  const clienteId = document.getElementById('sel-cliente').value;
+  if (!clienteId) { showToast('Elegí un cliente primero', 'error'); return; }
+  const items = getArticulosDelPedido();
+  if (items.length === 0) { showToast('Agregá al menos un artículo', 'error'); return; }
+  const sinArticulo = items.some(i => !i.articuloId);
+  if (sinArticulo) { showToast('Completá todos los artículos', 'error'); return; }
+
+  const cliente = clientes.find(c => c.id == clienteId);
+  const obs = document.getElementById('obs').value.trim();
+  const total = items.reduce((s, i) => s + i.subtotal, 0);
+
+  const pedido = {
+    vendedorId: vendedorData.id,
+    vendedorNombre: vendedorData.nombre,
+    clienteId,
+    clienteNombre: cliente?.nombre || '',
+    articulos: items,
+    observaciones: obs,
+    total,
+    fecha: new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
+  };
+
+  showOverlay('Enviando pedido...');
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'nuevoPedido', pedido })
+    });
+    const data = await res.json();
+    hideOverlay();
+    if (data.ok) {
+      historial.unshift({ ...pedido, id: data.id });
+      mostrarExito(pedido);
+    } else {
+      showToast('Error al enviar: ' + (data.error || 'Reintentá'), 'error');
+    }
+  } catch(e) {
+    hideOverlay();
+    showToast('Error de conexión. Reintentá.', 'error');
+  }
+};
+
+function mostrarExito(pedido) {
+  document.getElementById('app').style.display = 'none';
+  const s = document.getElementById('page-success');
+  s.classList.add('active');
+  document.getElementById('success-detail').innerHTML =
+    `Pedido para <strong>${pedido.clienteNombre}</strong><br>
+     ${pedido.articulos.length} artículo${pedido.articulos.length !== 1?'s':''} · Total: <strong>${formatMoney(pedido.total)}</strong><br>
+     <small style="color:var(--text-muted)">Pendiente de autorización</small>`;
+}
+
+function nuevoOtroPedido() {
+  document.getElementById('page-success').classList.remove('active');
+  document.getElementById('app').style.display = 'block';
+  // Reset form
+  document.getElementById('sel-cliente').value = '';
+  document.getElementById('obs').value = '';
+  document.getElementById('articulos-container').innerHTML = '';
+  articuloCount = 0;
+  agregarArticulo();
+  showPage('nuevo');
+}
+
+document.getElementById('btn-add-articulo').onclick = agregarArticulo;
+
+// ============================================================
+// HISTORIAL
+// ============================================================
+function renderHistorial() {
+  const container = document.getElementById('historial-container');
+  if (historial.length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>Todavía no enviaste pedidos</p>
+    </div>`;
+    return;
+  }
+  container.innerHTML = historial.map(p => `
+    <div class="pedido-hist">
+      <div class="pedido-hist-header">
+        <div>
+          <div class="pedido-hist-cliente">${p.clienteNombre}</div>
+          <div class="pedido-hist-fecha">${p.fecha}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="pedido-hist-total">${formatMoney(p.total)}</div>
+          <span class="badge badge-pending">Pendiente</span>
+        </div>
+      </div>
+      <div class="pedido-hist-items">${p.articulos.map(a => `${a.nombre} ×${a.cantidad}`).join(' · ')}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// NAVEGACIÓN
+// ============================================================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.getElementById(`nav-${page}`).classList.add('active');
+  if (page === 'historial') renderHistorial();
+}
+
+document.getElementById('btn-logout').onclick = () => {
+  if (confirm('¿Salir de la aplicación?')) {
+    currentUser = null;
+    vendedorData = null;
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('page-login').style.display = 'flex';
+    document.getElementById('page-login').classList.add('active');
+  }
+};
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function formatMoney(n) {
+  return '$' + (n || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showOverlay(msg = 'Cargando...') {
+  document.getElementById('overlay-text').textContent = msg;
+  document.getElementById('overlay').classList.add('active');
+}
+
+function hideOverlay() {
+  document.getElementById('overlay').classList.remove('active');
+}
+
+// ============================================================
+// INICIO
+// ============================================================
+initGoogleAuth();
+</script>
+</body>
+</html>
