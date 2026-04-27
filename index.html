@@ -647,8 +647,10 @@ function initGoogleAuth() {
   // Cargamos gapi
   const script = document.createElement('script');
   script.src = 'https://accounts.google.com/gsi/client';
-  script.onload = () => {
+    script.onload = () => {
     google.accounts.id.initialize({
+      ux_mode: 'redirect',
+      redirect_uri: window.location.href.split('?')[0],
       client_id: '726758201225-t8g1n5ti9o8vaps3h20dm5grv4ufrq6i.apps.googleusercontent.com',
       callback: handleCredentialResponse,
       auto_select: false
