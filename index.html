@@ -684,7 +684,7 @@ document.getElementById('btn-google-login').onclick = () => {
 async function loadVendedorData() {
   showOverlay('Verificando acceso...');
   try {
-    const res = await fetch(`${SCRIPT_URL}?action=getVendedorData&email=${currentUser.email}`);
+    const res = await fetch(`${SCRIPT_URL}?action=getVendedorData&email=${currentUser.email}`, {redirect: 'follow'});
     const data = await res.json();
     if (data.error) { hideOverlay(); showToast(data.error, 'error'); return; }
     vendedorData = data.vendedor;
