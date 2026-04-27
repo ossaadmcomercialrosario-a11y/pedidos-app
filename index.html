@@ -627,7 +627,7 @@
 // ============================================================
 // CONFIGURACIÓN — ¡CAMBIAR ESTA URL por la del Apps Script!
 // ============================================================
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywJ4s-l6v30jIv-4zvY39qeWMIs4rf_3ygb17yCe8Ad7TeKpzIZEEL7A3u6wxhzIBJig/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydyC-pyGA5LJIYNDOqEXGYOflOdfjua5pQGOSIyvGzRfU25IJ3PwBoND-J2x0-wsmVwA/exec';
 
 // ============================================================
 // ESTADO GLOBAL
@@ -679,24 +679,45 @@ document.getElementById('btn-google-login').onclick = () => {
 };
 
 // ============================================================
-// CARGA DE DATOS
+// CARGA DE DATOS — usa JSONP para evitar CORS
 // ============================================================
-async function loadVendedorData() {
+function loadVendedorData() {
   showOverlay('Verificando acceso...');
-  try {
-    const res = await fetch(`${SCRIPT_URL}?action=getVendedorData&email=${currentUser.email}`, {redirect: 'follow'});
-    const data = await res.json();
+
+  // Limpiamos callbacks anteriores
+  if (window._jsonpCallback) {
+    delete window._jsonpCallback;
+    const old = document.getElementById('jsonp-script');
+    if (old) old.remove();
+  }
+
+  // Timeout por si el script no responde
+  const timer = setTimeout(() => {
+    hideOverlay();
+    showToast('Error de conexión. Reintentá.', 'error');
+  }, 15000);
+
+  window._jsonpCallback = function(data) {
+    clearTimeout(timer);
+    const old = document.getElementById('jsonp-script');
+    if (old) old.remove();
     if (data.error) { hideOverlay(); showToast(data.error, 'error'); return; }
     vendedorData = data.vendedor;
     clientes = data.clientes;
     articulos = data.articulos;
     listas = data.listas;
     mostrarApp();
-  } catch(e) {
+  };
+
+  const s = document.createElement('script');
+  s.id = 'jsonp-script';
+  s.src = `${SCRIPT_URL}?action=getVendedorData&email=${encodeURIComponent(currentUser.email)}&callback=_jsonpCallback`;
+  s.onerror = () => {
+    clearTimeout(timer);
     hideOverlay();
     showToast('Error de conexión. Reintentá.', 'error');
-    console.error(e);
-  }
+  };
+  document.head.appendChild(s);
 }
 
 function mostrarApp() {
@@ -888,12 +909,23 @@ document.getElementById('btn-confirmar').onclick = async () => {
   };
 
   showOverlay('Enviando pedido...');
-  try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'nuevoPedido', pedido })
-    });
-    const data = await res.json();
+
+  // Usamos JSONP también para el POST (enviamos datos por GET con callback)
+  if (window._jsonpSend) {
+    delete window._jsonpSend;
+    const old = document.getElementById('jsonp-send');
+    if (old) old.remove();
+  }
+
+  const timer = setTimeout(() => {
+    hideOverlay();
+    showToast('Error de conexión. Reintentá.', 'error');
+  }, 20000);
+
+  window._jsonpSend = function(data) {
+    clearTimeout(timer);
+    const old = document.getElementById('jsonp-send');
+    if (old) old.remove();
     hideOverlay();
     if (data.ok) {
       historial.unshift({ ...pedido, id: data.id });
@@ -901,10 +933,17 @@ document.getElementById('btn-confirmar').onclick = async () => {
     } else {
       showToast('Error al enviar: ' + (data.error || 'Reintentá'), 'error');
     }
-  } catch(e) {
+  };
+
+  const s = document.createElement('script');
+  s.id = 'jsonp-send';
+  s.src = `${SCRIPT_URL}?action=nuevoPedido&callback=_jsonpSend&pedido=${encodeURIComponent(JSON.stringify(pedido))}`;
+  s.onerror = () => {
+    clearTimeout(timer);
     hideOverlay();
     showToast('Error de conexión. Reintentá.', 'error');
-  }
+  };
+  document.head.appendChild(s);
 };
 
 function mostrarExito(pedido) {
