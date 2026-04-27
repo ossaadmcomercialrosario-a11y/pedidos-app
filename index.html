@@ -675,7 +675,14 @@ function parseJwt(token) {
 }
 
 document.getElementById('btn-google-login').onclick = () => {
-  google.accounts.id.prompt();
+  google.accounts.id.prompt((notification) => {
+    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+      google.accounts.id.renderButton(
+        document.getElementById('btn-google-login'),
+        { theme: 'outline', size: 'large', width: 300 }
+      );
+    }
+  });
 };
 
 // ============================================================
