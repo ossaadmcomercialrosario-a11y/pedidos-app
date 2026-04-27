@@ -641,50 +641,41 @@ let articuloCount = 0;
 let historial = [];
 
 // ============================================================
-// GOOGLE SIGN-IN
+// GOOGLE SIGN-IN — OAuth2 via popup (compatible con GitHub Pages)
 // ============================================================
+const CLIENT_ID = '726758201225-t8g1n5ti9o8vaps3h20dm5grv4ufrq6i.apps.googleusercontent.com';
+
 function initGoogleAuth() {
-  // Cargamos gapi
   const script = document.createElement('script');
-  script.src = 'https://accounts.google.com/gsi/client';
-    script.onload = () => {
-    google.accounts.id.initialize({
-      ux_mode: 'redirect',
-      redirect_uri: window.location.href.split('?')[0],
-      client_id: '726758201225-t8g1n5ti9o8vaps3h20dm5grv4ufrq6i.apps.googleusercontent.com',
-      callback: handleCredentialResponse,
-      auto_select: false
+  script.src = 'https://apis.google.com/js/api.js';
+  script.onload = () => {
+    gapi.load('auth2', () => {
+      gapi.auth2.init({ client_id: CLIENT_ID });
     });
   };
   document.head.appendChild(script);
 }
 
-function handleCredentialResponse(response) {
-  const payload = parseJwt(response.credential);
-  currentUser = {
-    email: payload.email,
-    name: payload.name,
-    picture: payload.picture,
-    token: response.credential
-  };
-  loadVendedorData();
-}
-
-function parseJwt(token) {
-  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-  return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
-    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-}
-
-document.getElementById('btn-google-login').onclick = () => {
-  google.accounts.id.prompt((notification) => {
-    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-      google.accounts.id.renderButton(
-        document.getElementById('btn-google-login'),
-        { theme: 'outline', size: 'large', width: 300 }
-      );
+document.getElementById('btn-google-login').onclick = async () => {
+  try {
+    showOverlay('Abriendo login de Google...');
+    const authInstance = gapi.auth2.getAuthInstance();
+    const googleUser   = await authInstance.signIn();
+    const profile      = googleUser.getBasicProfile();
+    currentUser = {
+      email:   profile.getEmail(),
+      name:    profile.getName(),
+      picture: profile.getImageUrl(),
+      token:   googleUser.getAuthResponse().id_token
+    };
+    hideOverlay();
+    loadVendedorData();
+  } catch(e) {
+    hideOverlay();
+    if (e.error !== 'popup_closed_by_user') {
+      showToast('Error al iniciar sesión. Reintentá.', 'error');
     }
-  });
+  }
 };
 
 // ============================================================
